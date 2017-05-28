@@ -87,7 +87,7 @@ public class LittleFinger {
     private static void displayNotification() {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context)
-                        //.setSmallIcon(R.mipmap.ic_launcher)
+                        .setSmallIcon(R.drawable.ic_evil)
                         .setContentTitle("My notification")
                         .setContentText("Hello World!");
 
