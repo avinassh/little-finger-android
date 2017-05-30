@@ -23,7 +23,7 @@ import okhttp3.Response;
  * HTTP Response code and body
  * <p>
  * If the response code is `HTTP_PAYMENT_REQUIRED` (402) or `HTTP_OK` (200), then payment is
- * expected to receive and let the work as usual
+ * expected to receive and let the app work as usual
  * <p>
  * If the response code is `HTTP_ACCEPTED` (202), then payment has been received. Update the flag
  * in preferences so that no future network calls are made
