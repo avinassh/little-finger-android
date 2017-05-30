@@ -40,7 +40,7 @@ public class LittleFinger {
 
     private static OkHttpClient client = new OkHttpClient();
 
-    public static void init(Context ctx, String urlString) {
+    public static void start(Context ctx, String urlString) {
         // Check whether to make call to server or not
         if (!Status.shouldMakeCall(ctx)) {
             // looks like payment has been received. No calls to the server!
