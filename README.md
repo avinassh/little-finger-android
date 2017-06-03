@@ -34,22 +34,23 @@ and call it:
 
 Your `MainActivity.java` code can be like this:
 
-    import im.avi.littlefinger.LittleFinger;
+```java
+import im.avi.littlefinger.LittleFinger;
 
-    public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
 
-        @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_main);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-            // your code
-            LittleFinger.start(this, "https://your-heroku-app.heroku.com");
-        }
-
-         // rest of the code
+        // your code
+        LittleFinger.start(this, "https://your-heroku-app.heroku.com");
     }
 
+     // rest of the code
+}
+```
 
 ## License
 
