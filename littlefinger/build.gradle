@@ -2,18 +2,18 @@ apply plugin: 'com.android.library'
 
 ext {
     bintrayRepo = 'little-finger'
-    bintrayName = 'little-finger'
+    bintrayName = 'littlefinger'
 
     publishedGroupId = 'im.avi'
     libraryName = 'LittleFinger'
-    artifact = 'little-finger'
+    artifact = 'littlefinger'
 
     libraryDescription = 'Android library for Little Finger'
 
     siteUrl = 'http://avi.im/little-finger'
     gitUrl = 'https://github.com/avinassh/little-finger-android.git'
 
-    libraryVersion = '0.1.0'
+    libraryVersion = '0.1.2'
 
     developerId = 'avinassh'
     developerName = 'Avinash Sajjanshetty'
